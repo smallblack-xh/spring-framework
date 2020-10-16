@@ -141,7 +141,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 
 
 	/**
-	 * <a name='DefaultResourceLoader-getResource'></a>
+	 *
 	 * @param location the resource location
 	 * @return {@link Resource}
 	 * 在 {@link DefaultResourceLoader}的子类中，基本不存在对于该方法的覆盖场景，因此此处为{@link ResourceLoader}的资源加载策略
