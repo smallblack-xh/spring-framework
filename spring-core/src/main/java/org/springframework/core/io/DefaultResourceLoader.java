@@ -140,10 +140,19 @@ public class DefaultResourceLoader implements ResourceLoader {
 	}
 
 
+	/**
+	 * <a name='DefaultResourceLoader-getResource'></a>
+	 * @param location the resource location
+	 * @return {@link Resource}
+	 * 在 {@link DefaultResourceLoader}的子类中，基本不存在对于该方法的覆盖场景，因此此处为{@link ResourceLoader}的资源加载策略
+	 */
 	@Override
 	public Resource getResource(String location) {
 		Assert.notNull(location, "Location must not be null");
 
+		/*
+		@KD  通过 ProtocolResolver 来加载资源
+		*/
 		for (ProtocolResolver protocolResolver : this.protocolResolvers) {
 			Resource resource = protocolResolver.resolve(location, this);
 			if (resource != null) {
@@ -151,19 +160,32 @@ public class DefaultResourceLoader implements ResourceLoader {
 			}
 		}
 
+		/*
+		@KD 当资源路径以 / 开头时,返回 ClassPathContextResource 类型的资源
+		*/
 		if (location.startsWith("/")) {
 			return getResourceByPath(location);
 		}
+		/*
+		@KD
+		*以 classpath: 开头，返回 ClassPathResource 类型的资源
+		 */
 		else if (location.startsWith(CLASSPATH_URL_PREFIX)) {
 			return new ClassPathResource(location.substring(CLASSPATH_URL_PREFIX.length()), getClassLoader());
 		}
 		else {
 			try {
+				/*
+				@KD 根据是否为文件 URL ，是则返回 FileUrlResource 类型的资源，否则返回 UrlResource 类型的资源
+				*/
 				// Try to parse the location as a URL...
 				URL url = new URL(location);
 				return (ResourceUtils.isFileURL(url) ? new FileUrlResource(url) : new UrlResource(url));
 			}
 			catch (MalformedURLException ex) {
+				/*
+				@KD 上述场景都不满足时，返回 ClassPathContextResource 类型的资源
+				*/
 				// No URL -> resolve as resource path.
 				return getResourceByPath(location);
 			}
